@@ -126,6 +126,13 @@ enum VLMUL : uint8_t {
   LMUL_F2
 };
 
+enum MIT : uint8_t {
+  MIT_TILEM,
+  MIT_TILEN,
+  MIT_TILEK,
+  MIT_TSIDX
+};
+
 enum {
   TAIL_UNDISTURBED_MASK_UNDISTURBED = 0,
   TAIL_AGNOSTIC = 1,
@@ -283,6 +290,7 @@ enum OperandType : unsigned {
   OPERAND_UIMM9_LSB000,
   OPERAND_UIMM10_LSB00_NONZERO,
   OPERAND_UIMM12,
+  OPERAND_UIMM13,
   OPERAND_ZERO,
   OPERAND_SIMM5,
   OPERAND_SIMM5_PLUS1,
@@ -498,6 +506,8 @@ inline static bool isValidLMUL(unsigned LMUL, bool Fractional) {
 unsigned encodeVTYPE(RISCVII::VLMUL VLMUL, unsigned SEW, bool TailAgnostic,
                      bool MaskAgnostic);
 
+unsigned encodeMTYPE(unsigned SEW, bool mltr, bool mrtr, bool maccq);
+
 inline static RISCVII::VLMUL getVLMUL(unsigned VType) {
   unsigned VLMUL = VType & 0x7;
   return static_cast<RISCVII::VLMUL>(VLMUL);
@@ -527,11 +537,23 @@ inline static unsigned getSEW(unsigned VType) {
   return decodeVSEW(VSEW);
 }
 
+inline static unsigned decodeMSEW(unsigned MSEW) {
+  assert(MSEW < 8 && "Unexpected MSEW value");
+  return 1 << (MSEW + 3);
+}
+
+inline static unsigned getMSEW(unsigned MType) {
+  unsigned MSEW = MType & 0x7;
+  return decodeMSEW(MSEW);
+}
+
 inline static bool isTailAgnostic(unsigned VType) { return VType & 0x40; }
 
 inline static bool isMaskAgnostic(unsigned VType) { return VType & 0x80; }
 
 void printVType(unsigned VType, raw_ostream &OS);
+
+void printMType(unsigned MType, raw_ostream &OS);
 
 unsigned getSEWLMULRatio(unsigned SEW, RISCVII::VLMUL VLMul);
 
