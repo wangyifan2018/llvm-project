@@ -238,10 +238,10 @@ def simm12 : RISCVSImmLeafOp<12> {
   }];
 }
 
-def uimm13 : Operand<XLenVT> {
-  let ParserMatchClass = UImmAsmOperand<13>;
-  let DecoderMethod = "decodeUImmOperand<13>";
-  let OperandType = "OPERAND_UIMM13";
+def uimm12 : Operand<XLenVT> {
+  let ParserMatchClass = UImmAsmOperand<12>;
+  let DecoderMethod = "decodeUImmOperand<12>";
+  let OperandType = "OPERAND_UIMM12";
   let OperandNamespace = "RISCVOp";
 }
 // A 12-bit signed immediate which cannot fit in 6-bit signed immediate,

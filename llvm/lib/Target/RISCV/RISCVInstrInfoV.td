@@ -1103,31 +1103,111 @@ def MSETTYPEI : RVInstSetMTypei<(outs GPR:$rd), (ins MTypeIOp:$mtypei),
 def MSETTYPE : RVInstSetMType<(outs GPR:$rd), (ins GPR:$rs1),
                          "msettype", "$rd, $rs1">;
 
-def MSETTILEM : RVInstSetTile<0b0011, (outs GPR:$rd), (ins GPR:$rs1),
-                         "msettilem", "$rd, $rs1">;
-def MSETTILEK : RVInstSetTile<0b0101, (outs GPR:$rd), (ins GPR:$rs1),
-                         "msettilek", "$rd, $rs1">;
-def MSETTILEN : RVInstSetTile<0b0111, (outs GPR:$rd), (ins GPR:$rs1),
-                         "msettilen", "$rd, $rs1">;
-def MSETTSIDX : RVInstSetTile<0b1001, (outs GPR:$rd), (ins GPR:$rs1),
-                         "msettsidx", "$rd, $rs1">;
+// set tensor by register
+def MSET_TM : RVInstSetTile<0b00000, (outs GPR:$rd), (ins GPR:$rs1),
+                         "mset.tm", "$rs1">;
+def MSET_TN : RVInstSetTile<0b00001, (outs GPR:$rd), (ins GPR:$rs1),
+                         "mset.tn", "$rs1">;
+def MSET_TK : RVInstSetTile<0b00010, (outs GPR:$rd), (ins GPR:$rs1),
+                         "mset.tk", "$rs1">;
+def MSET_STRA : RVInstSetTile<0b00011, (outs GPR:$rd), (ins GPR:$rs1),
+                         "mset.stra", "$rs1">;
+def MSET_STRB : RVInstSetTile<0b00100, (outs GPR:$rd), (ins GPR:$rs1),
+                         "mset.strb", "$rs1">;
+def MSET_STRC : RVInstSetTile<0b00101, (outs GPR:$rd), (ins GPR:$rs1),
+                         "mset.strc", "$rs1">;
+def MSET_CONV : RVInstSetTile<0b00110, (outs GPR:$rd), (ins GPR:$rs1),
+                         "mset.conv", "$rs1">;
 
+// set tensor by immediate
+def MSETI_TM : RVInstSetTilei<0b00, 0b00, 0b1, (outs GPR:$rd), (ins uimm12:$mleni),
+                         "mseti.tm", "$mleni">;
+def MSETI_TN : RVInstSetTilei<0b00, 0b01, 0b1, (outs GPR:$rd), (ins uimm12:$mleni),
+                         "mseti.tn", "$mleni">;
+def MSETI_TK : RVInstSetTilei<0b00, 0b10, 0b1, (outs GPR:$rd), (ins uimm12:$mleni),
+                         "mseti.tk", "$mleni">;
+def MSETI_STRA : RVInstSetTilei<0b00, 0b11, 0b1, (outs GPR:$rd), (ins uimm12:$mleni),
+                         "mseti.stra", "$mleni">;
+def MSETI_STRB : RVInstSetTilei<0b01, 0b00, 0b1, (outs GPR:$rd), (ins uimm12:$mleni),
+                         "mseti.strb", "$mleni">;
+def MSETI_STRC : RVInstSetTilei<0b01, 0b01, 0b1, (outs GPR:$rd), (ins uimm12:$mleni),
+                         "mseti.strc", "$mleni">;
 
-def MSETTILEMI : RVInstSetTilei<0b0010, (outs GPR:$rd), (ins uimm13:$mleni),
-                         "msettilemi", "$rd, $mleni">;
-def MSETTILEKI : RVInstSetTilei<0b0100, (outs GPR:$rd), (ins uimm13:$mleni),
-                         "msettileki", "$rd, $mleni">;
-def MSETTILENI : RVInstSetTilei<0b0110, (outs GPR:$rd), (ins uimm13:$mleni),
-                         "msettileni", "$rd, $mleni">;
-def MSETTSIDXI : RVInstSetTilei<0b1000, (outs GPR:$rd), (ins uimm13:$mleni),
-                         "msettsidxi", "$rd, $mleni">;
+// set conv parameters immediate
+def MSET_CONV_KH_KW : RVInstSetConvi<0b01, 0b10, 0b1, (outs GPR:$rd), (ins uimm6:$mconvi2, uimm6:$mconvi1),
+                         "mset.conv.kh.kw", "$mconvi2, $mconvi1">;
+def MSET_CONV_SH_SW : RVInstSetConvi<0b01, 0b11, 0b1, (outs GPR:$rd), (ins uimm6:$mconvi2, uimm6:$mconvi1),
+                         "mset.conv.sh.sw", "$mconvi2, $mconvi1">;
+def MSET_CONV_PL_PR : RVInstSetConvi<0b10, 0b00, 0b1, (outs GPR:$rd), (ins uimm6:$mconvi2, uimm6:$mconvi1),
+                         "mset.conv.pl.pr", "$mconvi2, $mconvi1">;
+def MSET_CONV_PT_PB : RVInstSetConvi<0b10, 0b01, 0b1, (outs GPR:$rd), (ins uimm6:$mconvi2, uimm6:$mconvi1),
+                         "mset.conv.pt.pb", "$mconvi2, $mconvi1">;
 
-def MSETSK     : RVInstSetIm2col<0b1010, (outs GPR:$rd), (ins GPR:$rs1, GPR:$rs2),
-                         "msetsk", "$rd, $rs1, $rs2">;
-def MSETOUTSH  : RVInstSetIm2col<0b1000, (outs GPR:$rd), (ins GPR:$rs1, GPR:$rs2),
-                         "msetoutsh", "$rd, $rs1, $rs2">;
-def MSETINSH   : RVInstSetIm2col<0b1001, (outs GPR:$rd), (ins GPR:$rs1, GPR:$rs2),
-                         "msetinsh", "$rd, $rs1, $rs2">;
+// data move
+def MOV_T2T : RVInstMoveT2T<0b10, 0b10, 0b1, (outs TRR:$td), (ins TRR:$ts),
+                         "mov.t2t", "$td, $ts">;
+def MOV_V2T : RVInstMoveV2T<(outs TRR:$td), (ins VR:$vs),
+                         "mov.v2t", "$td, $vs">;
+def MOV2_V2T : RVInstMove2V2T<(outs TRR:$td), (ins VR:$vs2, VR:$vs1),
+                         "mov2.v2t", "$td, $vs2, $vs1">;
+def MOV2_T2V : RVInstMoveT2V<(outs VR:$vd), (ins TRR:$ts),
+                         "mov.t2v", "$vd, $ts">;
+def MOV2_I2T : RVInstMoveI2T<0b01010, (outs TRR:$td), (ins GPR:$rs),
+                         "mov.i2t", "$td, $rs">;
+
+// matrix load
+def MLD_A : RVInstMLoad<0b01011, (outs TRR:$td), (ins GPR:$rs),
+                         "mld.a", "$td, $rs">;
+def MLD_B : RVInstMLoad<0b01100, (outs TRR:$td), (ins GPR:$rs),
+                         "mld.b", "$td, $rs">;
+def MLD_C : RVInstMLoad<0b01101, (outs TRR:$td), (ins GPR:$rs),
+                         "mld.c", "$td, $rs">;
+def MLD_A_T : RVInstMLoad<0b01110, (outs TRR:$td), (ins GPR:$rs),
+                         "mld.a.t", "$td, $rs">;
+def MLD_B_T : RVInstMLoad<0b01111, (outs TRR:$td), (ins GPR:$rs),
+                         "mld.b.t", "$td, $rs">;
+def MLD_C_T : RVInstMLoad<0b10000, (outs TRR:$td), (ins GPR:$rs),
+                         "mld.c.t", "$td, $rs">;
+
+// matrix store
+def MST_A : RVInstMStore<0b10001, (outs TRR:$ts), (ins GPR:$rs),
+                         "mst.a", "$rs, $ts">;
+def MST_B : RVInstMStore<0b10010, (outs TRR:$ts), (ins GPR:$rs),
+                         "mst.b", "$rs, $ts">;
+def MST_C : RVInstMStore<0b10011, (outs TRR:$ts), (ins GPR:$rs),
+                         "mst.c", "$rs, $ts">;
+def MST_A_T : RVInstMStore<0b10100, (outs TRR:$ts), (ins GPR:$rs),
+                         "mst.a.t", "$ts, $rs">;
+def MST_B_T : RVInstMStore<0b10101, (outs TRR:$ts), (ins GPR:$rs),
+                         "mst.b.t", "$ts, $rs">;
+def MST_C_T : RVInstMStore<0b10110, (outs TRR:$ts), (ins GPR:$rs),
+                         "mst.c.t", "$ts, $rs">;
+
+// matrix accumulate
+def MMAQS8_NN : RVInstMACC<0b00, 0b00, 0b0, (outs TRR:$td), (ins TRR:$ts2, TRR:$ts1),
+                         "mmaqs8.nn", "$td, $ts2, $ts1">;
+def MMAQS8_NT : RVInstMACC<0b00, 0b01, 0b0, (outs TRR:$td), (ins TRR:$ts2, TRR:$ts1),
+                         "mmaqs8.nt", "$td, $ts2, $ts1">;
+def MMAQS8_TT : RVInstMACC<0b00, 0b10, 0b0, (outs TRR:$td), (ins TRR:$ts2, TRR:$ts1),
+                         "mmaqs8.tt", "$td, $ts2, $ts1">;
+def MMAF16_NN : RVInstMACC<0b00, 0b11, 0b0, (outs TRR:$td), (ins TRR:$ts2, TRR:$ts1),
+                         "mmaf16.nn", "$td, $ts2, $ts1">;
+def MMAF16_NT : RVInstMACC<0b01, 0b00, 0b0, (outs TRR:$td), (ins TRR:$ts2, TRR:$ts1),
+                         "mmaf16.nt", "$td, $ts2, $ts1">;
+def MMAF16_TT : RVInstMACC<0b01, 0b01, 0b0, (outs TRR:$td), (ins TRR:$ts2, TRR:$ts1),
+                         "mmaf16.tt", "$td, $ts2, $ts1">;
+def MMAWF16_NN : RVInstMACC<0b01, 0b10, 0b0, (outs TRR:$td), (ins TRR:$ts2, TRR:$ts1),
+                         "mmawf16.nn", "$td, $ts2, $ts1">;
+def MMAWF16_NT : RVInstMACC<0b01, 0b11, 0b0, (outs TRR:$td), (ins TRR:$ts2, TRR:$ts1),
+                         "mmawf16.nt", "$td, $ts2, $ts1">;
+def MMAWF16_TT : RVInstMACC<0b10, 0b00, 0b0, (outs TRR:$td), (ins TRR:$ts2, TRR:$ts1),
+                         "mmawf16.tt", "$td, $ts2, $ts1">;
+def MQUANT : RVInstMACC<0b10, 0b01, 0b0, (outs TRR:$td), (ins TRR:$ts2, TRR:$ts1),
+                         "mquant", "$td, $ts2, $ts1">;
+def MCONVQS8 : RVInstMACC<0b10, 0b10, 0b0, (outs TRR:$td), (ins TRR:$ts2, TRR:$ts1),
+                         "mconvqs8", "$td, $ts2, $ts1">;
+def MCONVWF16 : RVInstMACC<0b10, 0b11, 0b0, (outs TRR:$td), (ins TRR:$ts2, TRR:$ts1),
+                         "mconvwf16", "$td, $ts2, $ts1">;
 
 } // hasSideEffects = 1, mayLoad = 0, mayStore = 0
 } // Predicates = [HasVInstructions]

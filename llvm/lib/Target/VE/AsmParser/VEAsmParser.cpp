@@ -316,15 +316,19 @@ public:
     }
     return false;
   }
-  bool isUImm13() {
+  // This function checks if the current token is an unsigned 12bit immediate.
+  bool isUImm12() {
+    // If the current token is not an immediate, return false.
     if (!isImm())
       return false;
 
-    // Constant case
+    // If the current token is a constant, get its value.
     if (const auto *ConstExpr = dyn_cast<MCConstantExpr>(Imm.Val)) {
       int64_t Value = ConstExpr->getValue();
-      return isUInt<13>(Value);
+      // If the value is an unsigned 12-bit integer, return true.
+      return isUInt<12>(Value);
     }
+    // If the current token is not a constant, return false.
     return false;
   }
   bool isSImm7() {

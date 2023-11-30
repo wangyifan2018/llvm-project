@@ -159,14 +159,20 @@ unsigned RISCVVType::encodeVTYPE(RISCVII::VLMUL VLMUL, unsigned SEW,
 // Bits | Name       | Description
 // -----+------------+------------------------------------------------
 // 2:0  | msew[2:0]  | Standard element width (SEW) setting
+// -----+------------+------------------------------------------------
+// This function encodes the MTYPE. It takes the SEW and a boolean maccq as parameters.
+// It first checks if the SEW is valid. Then it calculates the MSEWBits by taking the log base 2 of SEW and subtracting 3.
+// It then sets the MTypeI to the last 3 bits of MSEWBits.
+// If maccq is true, it sets the fourth bit of MTypeI to 1.
+// Finally, it returns the MTypeI.
 unsigned RISCVVType::encodeMTYPE(unsigned SEW, bool maccq) {
-  assert(isValidSEW(SEW) && "Invalid SEW");
-  unsigned MSEWBits = Log2_32(SEW) - 3;
-  unsigned MTypeI = (MSEWBits & 0x7);
-  if (maccq)
-    MTypeI |= (1 << 3);
+  assert(isValidSEW(SEW) && "Invalid SEW"); // Check if SEW is valid
+  unsigned MSEWBits = Log2_32(SEW) - 3; // Calculate MSEWBits
+  unsigned MTypeI = (MSEWBits & 0x7); // Set MTypeI to the last 3 bits of MSEWBits
+  if (maccq) // If maccq is true
+    MTypeI |= (1 << 3); // Set the fourth bit of MTypeI to 1
 
-  return MTypeI;
+  return MTypeI; // Return MTypeI
 }
 
 std::pair<unsigned, bool> RISCVVType::decodeVLMUL(RISCVII::VLMUL VLMUL) {

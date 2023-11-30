@@ -737,13 +737,13 @@ public:
            VK == RISCVMCExpr::VK_RISCV_None;
   }
 
-    bool isUImm13() const {
+    bool isUImm12() const {
     int64_t Imm;
     RISCVMCExpr::VariantKind VK = RISCVMCExpr::VK_RISCV_None;
     if (!isImm())
       return false;
     bool IsConstantImm = evaluateConstantImm(getImm(), Imm, VK);
-    return IsConstantImm && isUInt<13>(Imm) && VK == RISCVMCExpr::VK_RISCV_None;
+    return IsConstantImm && isUInt<12>(Imm) && VK == RISCVMCExpr::VK_RISCV_None;
   }
 
   bool isSImm5() const {
@@ -2283,60 +2283,85 @@ bool RISCVAsmParser::generateVTypeError(SMLoc ErrorLoc) {
 }
 
 
+// This function parses the MTypeI operand in the assembly instruction.
 ParseStatus RISCVAsmParser::parseMTypeI(OperandVector &Operands) {
+  // Get the current location in the source code.
   SMLoc S = getLoc();
+  // If the next token is not an identifier, return NoMatch.
   if (getLexer().isNot(AsmToken::Identifier))
     return ParseStatus::NoMatch;
 
+  // Create a vector to store the elements of the MTypeI operand.
   SmallVector<AsmToken, 7> MTypeIElements;
   // Put all the tokens for mtypei operand into VTypeIElements vector.
   while (getLexer().isNot(AsmToken::EndOfStatement)) {
+    // Add the current token to the vector.
     MTypeIElements.push_back(getLexer().getTok());
+    // Move to the next token.
     getLexer().Lex();
+    // If the end of the statement is reached, break the loop.
     if (getLexer().is(AsmToken::EndOfStatement))
       break;
+    // If the next token is not a comma, go to MatchFail.
     if (getLexer().isNot(AsmToken::Comma))
       goto MatchFail;
+    // Add the comma to the vector.
     AsmToken Comma = getLexer().getTok();
     MTypeIElements.push_back(Comma);
+    // Move to the next token.
     getLexer().Lex();
   }
 
+  // If the size of the vector is 3 or 1, continue parsing.
   if (MTypeIElements.size() == 3 || MTypeIElements.size() == 1) {
     // The MTypeIElements layout is:
     // SEW comma maccq
     //  0    1    2
+    // Get the identifier of the first token.
     StringRef Name = MTypeIElements[0].getIdentifier();
+    // If the identifier does not start with "e", go to MatchFail.
     if (!Name.consume_front("e"))
       goto MatchFail;
+    // Try to convert the rest of the identifier to an integer.
     unsigned Sew;
     if (Name.getAsInteger(10, Sew))
       goto MatchFail;
+    // If the integer is not a valid SEW, go to MatchFail.
     if (!RISCVVType::isValidSEW(Sew))
       goto MatchFail;
 
+    // Initialize MatrixAccQ to false.
     bool MatrixAccQ = false;
+    // If the size of the vector is 3, parse the third token.
     if (MTypeIElements.size() == 3) {
+      // Get the identifier of the third token.
       Name = MTypeIElements[2].getIdentifier();
+      // If the identifier is "maccq", set MatrixAccQ to true.
       if (Name == "maccq")
         MatrixAccQ = true;
+      // If the identifier is "maccd", keep MatrixAccQ as false.
       else if (Name == "maccd")
         MatrixAccQ = false;
+      // If the identifier is neither "maccq" nor "maccd", go to MatchFail.
       else
         goto MatchFail;
     }
 
-
+    // Encode the MTypeI operand.
     unsigned MTypeI =
         RISCVVType::encodeMTYPE(Sew, MatrixAccQ);
+    // Add the MTypeI operand to the Operands vector.
     Operands.push_back(RISCVOperand::createMType(MTypeI, S, isRV64()));
+    // Return Success.
     return ParseStatus::Success;
   }
 
 // If NoMatch, unlex all the tokens that comprise a vtypei operand
 MatchFail:
+  // Unlex all the tokens in the MTypeIElements vector.
   while (!MTypeIElements.empty())
     getLexer().UnLex(MTypeIElements.pop_back_val());
+  // Return NoMatch.
   return ParseStatus::NoMatch;
 }
 

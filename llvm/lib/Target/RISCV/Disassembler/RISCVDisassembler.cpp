@@ -193,17 +193,21 @@ static DecodeStatus DecodeVRRegisterClass(MCInst &Inst, uint32_t RegNo,
   return MCDisassembler::Success;
 }
 
+// This function decodes the TRR register class
 static DecodeStatus DecodeTRRRegisterClass(MCInst &Inst, uint64_t RegNo,
                                           uint64_t Address,
                                           const void *Decoder) {
-  if (RegNo >= 8)
+  // If the register number is greater than or equal to 16, return Fail
+  if (RegNo >= 16)
     return MCDisassembler::Fail;
 
+  // Create a register operand and add it to the instruction
   MCRegister Reg = RISCV::TR0 + RegNo;
   Inst.addOperand(MCOperand::createReg(Reg));
+  // Return Success if the decoding is successful
   return MCDisassembler::Success;
 }
-
+// Maybe don't need this
 static DecodeStatus DecodeACCRRegisterClass(MCInst &Inst, uint64_t RegNo,
                                           uint64_t Address,
                                           const void *Decoder) {
